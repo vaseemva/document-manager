@@ -1,36 +1,33 @@
-import 'dart:io';
-
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:document_manager_app/app/class/file_model.dart';
 import 'package:document_manager_app/app/core/utils/consts.dart';
+import 'package:document_manager_app/app/main_application/home/view/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class AddScreen extends StatefulWidget {
-  const AddScreen({super.key});
-
+class EditScreen extends StatefulWidget {
+  const EditScreen({super.key, required this.document});
+  final FileModel document;
   @override
-  AddScreenState createState() => AddScreenState();
+  EditScreenState createState() => EditScreenState();
 }
 
-class AddScreenState extends State<AddScreen> {
-  FilePickerResult? _selectedFile;
-  String _fileName = '';
-  String _fileDescription = '';
+class EditScreenState extends State<EditScreen> {
+  @override
+  void initState() {
+    _nameController.text = widget.document.name;
+    _desController.text = widget.document.description;
+    _expiryDateTime = widget.document.expirydate;
+    _selectedDocumentType = widget.document.type;
+
+    super.initState();
+  }
+
+ 
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _desController = TextEditingController();
-
-  Future<void> _selectFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      setState(() {
-        _selectedFile = result;
-      });
-    }
-  }
 
   String? _selectedDocumentType;
   final List<String> _documentTypes = [
@@ -74,47 +71,48 @@ class AddScreenState extends State<AddScreen> {
   }
 
   Future<void> _saveFile() async {
-    if (_fileDescription == '' || _fileName == '' || _selectedFile == null) {
+    if (_desController.text.isEmpty || _nameController.text.isEmpty) {
       AnimatedSnackBar.material("Please fill the required fields",
               type: AnimatedSnackBarType.error,
               mobileSnackBarPosition: MobileSnackBarPosition.bottom,
               duration: const Duration(seconds: 1))
           .show(context);
     }
-    if (_selectedFile != null) {
-      Directory appDirectory = await getApplicationDocumentsDirectory();
-      String appFolderPath = appDirectory.path;
-      String fileName = _selectedFile!.files.single.name;
-      String filePath = '$appFolderPath/$fileName';
 
-      File savedFile =
-          await File(_selectedFile!.files.single.path!).copy(filePath);
-
-      FileModel file = FileModel(
-          id: DateTime.now().millisecondsSinceEpoch,
-          name: _fileName,
-          description: _fileDescription,
-          path: savedFile.path,
+    if (_desController.text.isNotEmpty && _nameController.text.isNotEmpty) {
+      FileModel document = FileModel(
+          name: _nameController.text,
+          description: _desController.text,
+          path: widget.document.path,
           type: _selectedDocumentType,
           expirydate: _expiryDateTime);
 
       final box = Hive.box<FileModel>('files');
-      await box.add(file);
+      final files = box.values.toList();
+
+      for (var i = 0; i < files.length; i++) {
+        if (files[i].id == widget.document.id) {
+          await box.putAt(i, document);
+
+          // ignore: use_build_context_synchronously
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const HomeScreen(),
+            ),
+            (route) => false,
+          );
+          // ignore: use_build_context_synchronously
+          AnimatedSnackBar.material("File Updated Successfully",
+                  type: AnimatedSnackBarType.success,
+                  duration: const Duration(seconds: 1))
+              .show(context);
+        }
+      }
 
       setState(() {
-        _fileName = '';
-        _fileDescription = '';
-        _selectedFile = null;
         _desController.clear();
         _nameController.clear();
       });
-      // ignore: use_build_context_synchronously
-      Navigator.of(context).pop();
-      // ignore: use_build_context_synchronously
-      AnimatedSnackBar.material("File Saved Successfully",
-              type: AnimatedSnackBarType.success,
-              duration: const Duration(seconds: 1))
-          .show(context);
     }
   }
 
@@ -133,23 +131,16 @@ class AddScreenState extends State<AddScreen> {
               kheight15,
               Card(
                 child: SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: _selectedFile != null
-                      ? Center(
-                          child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            _selectedFile!.files.single.name,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ))
-                      : IconButton(
-                          onPressed: () {
-                            _selectFile();
-                          },
-                          icon: const Icon(Icons.upload)),
-                ),
+                    height: 100,
+                    width: 100,
+                    child: Center(
+                        child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        widget.document.path,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ))),
               ),
               kheight15,
               TextField(
@@ -157,11 +148,6 @@ class AddScreenState extends State<AddScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Title',
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _fileName = value;
-                  });
-                },
               ),
               const SizedBox(height: 16.0),
               TextField(
@@ -169,11 +155,6 @@ class AddScreenState extends State<AddScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Description',
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _fileDescription = value;
-                  });
-                },
               ),
               kheight20,
               ListTile(

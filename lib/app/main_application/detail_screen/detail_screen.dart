@@ -1,9 +1,10 @@
 import 'dart:developer';
 
 import 'package:document_manager_app/app/class/file_model.dart';
+import 'package:document_manager_app/app/main_application/edit_screen/edit_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:open_file_plus/open_file_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class DetailScreen extends StatelessWidget {
   final FileModel file;
@@ -36,7 +37,7 @@ class DetailScreen extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           // Open File Button
@@ -48,62 +49,85 @@ class DetailScreen extends StatelessWidget {
                 log(e.toString());
               }
             },
-            child: Text('Open File'),
+            child: const Text('Open File'),
           ),
-          SizedBox(
+          const SizedBox(
+            height: 10,
+          ),
+          //edit button
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => EditScreen(document: file),
+              ));
+            },
+            child: const Text('Edit Details'),
+          ),
+          const SizedBox(
             height: 10,
           ),
           // File Name
           Row(
             children: [
-              Icon(Icons.insert_drive_file),
-              SizedBox(width: 8.0),
-              Text(
-                'File Name: ${file.name}',
-                style: TextStyle(fontSize: 18.0),
+              const Icon(Icons.insert_drive_file),
+              const SizedBox(width: 8.0),
+              Expanded(
+                child: Text(
+                  'File Name: ${file.name}',
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 18.0),
+                ),
               ),
             ],
           ),
-          SizedBox(height: 8.0),
+          const SizedBox(height: 8.0),
 
           // File Description
-          Row(
+          const Row(
             children: [
               Icon(Icons.description),
               SizedBox(width: 8.0),
               Text(
-                'File Description: ${file.description}',
+                'File Description:',
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.justify,
                 style: TextStyle(fontSize: 18.0),
               ),
             ],
           ),
-          SizedBox(height: 8.0),
+          Text(
+            file.description,
+            textAlign: TextAlign.justify,
+            style: const TextStyle(fontSize: 16.0),
+          ),
+
+          const SizedBox(height: 8.0),
 
           // File Type
           Row(
             children: [
-              Icon(Icons.folder),
-              SizedBox(width: 8.0),
+              const Icon(Icons.folder),
+              const SizedBox(width: 8.0),
               Text(
                 'File Type: ${file.type}',
-                style: TextStyle(fontSize: 18.0),
+                style: const TextStyle(fontSize: 18.0),
               ),
             ],
           ),
-          SizedBox(height: 8.0),
+          const SizedBox(height: 8.0),
 
           // Expiry Date
           Row(
             children: [
-              Icon(Icons.calendar_today),
-              SizedBox(width: 8.0),
+              const Icon(Icons.calendar_today),
+              const SizedBox(width: 8.0),
               Text(
-                'Expiry Date: ${file.expirydate ?? "Not Set"}',
-                style: TextStyle(fontSize: 18.0),
+                'Expiry Date: ${file.expirydate != null ? DateFormat('MMM dd, yyyy hh:mm a').format(file.expirydate!) : "Not Set"}',
+                style: const TextStyle(fontSize: 18.0),
               ),
             ],
           ),
-          SizedBox(height: 8.0),
+          const SizedBox(height: 8.0),
         ],
       ),
     );
@@ -119,27 +143,5 @@ class DetailScreen extends StatelessWidget {
     } else {
       return Icons.insert_drive_file;
     }
-  }
-}
-
-void _openFile(FileModel file, BuildContext context) async {
-  if (await canLaunch(file.path)) {
-    await launch(file.path);
-  } else {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Error'),
-          content: Text('Could not open the file.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
   }
 }

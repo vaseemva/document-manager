@@ -1,23 +1,55 @@
+import 'dart:developer';
+
 import 'package:document_manager_app/app/class/file_model.dart';
 import 'package:document_manager_app/app/main_application/add_document/view/add_screen.dart';
 import 'package:document_manager_app/app/main_application/detail_screen/detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   late Box<FileModel> _fileBox;
 
   @override
   void initState() {
-    _fileBox = Hive.box<FileModel>('files');
     super.initState();
+    _fileBox = Hive.box<FileModel>('files');
+    _deleteExpiredFiles();
+  }
+
+  Future<void> _deleteExpiredFiles() async {
+    final currentDate = DateTime.now();
+
+    for (var i = 0; i < _fileBox.length; i++) {
+      final file = _fileBox.getAt(i)!;
+      if (file.expirydate != null) {
+        final expirydate = file.expirydate;
+        if (currentDate.isAfter(expirydate!)) {
+          _fileBox.deleteAt(i);
+        }
+      }
+    }
+  }
+
+  String calculateRemainingTime(DateTime expiryDate) {
+    final now = DateTime.now();
+    final remainingDuration = expiryDate.difference(now);
+
+    if (remainingDuration.isNegative) {
+      // Document has expired
+      return 'Expired';
+    }
+
+    final remainingHours = remainingDuration.inHours;
+
+    return 'Expiring in $remainingHours hours';
   }
 
   @override
@@ -32,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final files = box.values.toList().cast<FileModel>();
           return GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3),
+                crossAxisCount: 2),
             itemBuilder: (context, index) {
               final file = files[index];
               return Padding(
@@ -56,7 +88,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             Icon(
                               _getDocumentIcon(file),
                               size: 48.0,
-                              color: Colors.red.shade300, // Customize the icon color
+                              color: Colors
+                                  .red.shade300, // Customize the icon color
                             ),
                             const SizedBox(height: 8.0),
                             Text(
@@ -68,6 +101,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               textAlign: TextAlign.center,
                             ),
+                            file.expirydate != null
+                                ? Text(
+                                    calculateRemainingTime(file.expirydate!),
+                                    style: TextStyle(color: Colors.red),
+                                  )
+                                : SizedBox()
                           ],
                         ),
                       ),
@@ -81,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => AddScreen(),
+              builder: (context) => const AddScreen(),
             ));
           },
           label: const Icon(Icons.add)),
