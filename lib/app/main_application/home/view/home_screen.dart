@@ -129,11 +129,13 @@ class HomeScreenState extends State<HomeScreen> {
 }
 
 IconData _getDocumentIcon(FileModel file) {
-  if (file.type == 'PDF') {
+  if (file.type == '.pdf') {
     return Icons.picture_as_pdf;
-  } else if (file.type == 'PNG' || file.type == 'JPEG') {
+  } else if (file.type == '.png' ||
+      file.type == '.jpg' ||
+      file.type == '.jpeg') {
     return Icons.image;
-  } else if (file.type == 'XLSX') {
+  } else if (file.type == '.xls'||file.type=='.xlsx') {
     return Icons.insert_drive_file;
   } else {
     return Icons.insert_drive_file;

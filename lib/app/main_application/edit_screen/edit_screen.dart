@@ -24,18 +24,10 @@ class EditScreenState extends State<EditScreen> {
     super.initState();
   }
 
- 
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _desController = TextEditingController();
 
   String? _selectedDocumentType;
-  final List<String> _documentTypes = [
-    'PDF',
-    'PNG',
-    'JPEG',
-    'XLSX',
-  ];
 
   DateTime? _expiryDateTime;
 
@@ -120,7 +112,7 @@ class EditScreenState extends State<EditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Document'),
+        title: const Text('Edit Document'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -167,40 +159,6 @@ class EditScreenState extends State<EditScreen> {
                       : 'Not Set',
                 ),
                 onTap: _pickExpiryDateTime,
-              ),
-              ListTile(
-                leading: const Icon(Icons.description),
-                title: const Text('Document Type'),
-                trailing: const Icon(Icons.arrow_drop_down),
-                subtitle: Text(
-                  _selectedDocumentType ?? 'Select a document type',
-                ),
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Select Document Type'),
-                        content: DropdownButton<String>(
-                          hint: const Text("Select"),
-                          value: _selectedDocumentType,
-                          items: _documentTypes.map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedDocumentType = newValue;
-                            });
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
               ),
               const SizedBox(height: 30.0),
               Row(
