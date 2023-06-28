@@ -43,6 +43,7 @@ class EditScreenState extends State<EditScreen> {
     );
 
     if (pickedDate != null) {
+      // ignore: use_build_context_synchronously
       final pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(initialDate),

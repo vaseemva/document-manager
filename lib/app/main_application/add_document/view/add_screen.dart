@@ -52,6 +52,7 @@ class AddScreenState extends State<AddScreen> {
     );
 
     if (pickedDate != null) {
+      // ignore: use_build_context_synchronously
       final pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(initialDate),
@@ -89,7 +90,6 @@ class AddScreenState extends State<AddScreen> {
           await File(_selectedFile!.files.single.path!).copy(filePath);
 
       String fileType = path.extension(_selectedFile!.files.single.path!);
-      log(fileType);
       FileModel file = FileModel(
           id: DateTime.now().millisecondsSinceEpoch,
           name: _fileName,
@@ -172,7 +172,7 @@ class AddScreenState extends State<AddScreen> {
                                     log(e.toString());
                                   }
                                 },
-                                child:const Text("Preview File")))
+                                child: const Text("Preview File")))
                       ],
                     )),
                 kheight15,

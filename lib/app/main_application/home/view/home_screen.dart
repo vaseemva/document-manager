@@ -1,11 +1,10 @@
-import 'dart:developer';
-
 import 'package:document_manager_app/app/class/file_model.dart';
+import 'package:document_manager_app/app/core/utils/common.dart';
 import 'package:document_manager_app/app/main_application/add_document/view/add_screen.dart';
 import 'package:document_manager_app/app/main_application/detail_screen/detail_screen.dart';
+import 'package:document_manager_app/app/main_application/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -56,7 +55,14 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Document Manager"),
+        // title: const Text("Document Manager"),
+        title: InkWell(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => SearchScreen(),
+              ));
+            },
+            child: Icon(Icons.search )),
       ),
       body: ValueListenableBuilder(
         valueListenable: _fileBox.listenable(),
@@ -86,7 +92,7 @@ class HomeScreenState extends State<HomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              _getDocumentIcon(file),
+                              getDocumentIcon(file),
                               size: 48.0,
                               color: Colors
                                   .red.shade300, // Customize the icon color
@@ -104,9 +110,9 @@ class HomeScreenState extends State<HomeScreen> {
                             file.expirydate != null
                                 ? Text(
                                     calculateRemainingTime(file.expirydate!),
-                                    style: TextStyle(color: Colors.red),
+                                    style: const TextStyle(color: Colors.red),
                                   )
-                                : SizedBox()
+                                : const SizedBox()
                           ],
                         ),
                       ),
@@ -125,19 +131,5 @@ class HomeScreenState extends State<HomeScreen> {
           },
           label: const Icon(Icons.add)),
     );
-  }
-}
-
-IconData _getDocumentIcon(FileModel file) {
-  if (file.type == '.pdf') {
-    return Icons.picture_as_pdf;
-  } else if (file.type == '.png' ||
-      file.type == '.jpg' ||
-      file.type == '.jpeg') {
-    return Icons.image;
-  } else if (file.type == '.xls'||file.type=='.xlsx') {
-    return Icons.insert_drive_file;
-  } else {
-    return Icons.insert_drive_file;
   }
 }

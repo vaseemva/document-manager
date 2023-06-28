@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:document_manager_app/app/class/file_model.dart';
+import 'package:document_manager_app/app/core/utils/common.dart';
 import 'package:document_manager_app/app/main_application/edit_screen/edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -43,7 +44,7 @@ class DetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: Icon(
-                          _getDocumentIcon(file),
+                          getDocumentIcon(file),
                           size: 100.0,
                           color:
                               Colors.red.shade300, // Customize the icon color
@@ -144,13 +145,13 @@ class DetailScreen extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      const Row(
                         children: [
-                          const Icon(Icons.calendar_today),
-                          const SizedBox(width: 8.0),
+                          Icon(Icons.calendar_today),
+                          SizedBox(width: 8.0),
                           Text(
                             'Expiry Date: ',
-                            style: const TextStyle(fontSize: 18.0),
+                            style: TextStyle(fontSize: 18.0),
                           ),
                         ],
                       ),
@@ -171,19 +172,5 @@ class DetailScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  IconData _getDocumentIcon(FileModel file) {
-    if (file.type == '.pdf') {
-      return Icons.picture_as_pdf;
-    } else if (file.type == '.png' ||
-        file.type == '.jpg' ||
-        file.type == '.jpeg') {
-      return Icons.image;
-    } else if (file.type == '.xls' || file.type == '.xlsx') {
-      return Icons.insert_drive_file;
-    } else {
-      return Icons.insert_drive_file;
-    }
   }
 }

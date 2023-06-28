@@ -1,5 +1,4 @@
 import 'package:document_manager_app/app/class/file_model.dart';
-import 'package:document_manager_app/app/main_application/home/view/home_screen.dart';
 import 'package:document_manager_app/app/main_application/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
